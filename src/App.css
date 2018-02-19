@@ -1,0 +1,27 @@
+.App {
+  text-align: center;
+}
+
+body {
+  padding-top: 54px;
+}
+
+@media (min-width: 992px) {
+  body {
+    padding-top: 56px;
+  }
+}
+
+.searchBar {
+  padding: 0 0 0 10px;
+  width: 100%;
+}
+
+.portfolio-item {
+  margin-bottom: 30px;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

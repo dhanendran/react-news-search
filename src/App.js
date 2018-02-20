@@ -45,14 +45,20 @@ class NewsSearch extends Component {
 
 	handleKeyUp( e ) {
 		let s = e.target.value;
-		let sCount = s.split(' ').length;
-		if ( sCount <= 1 || '' != s.split( ' ' )[sCount - 1] ) {
+		let sSplit = s.split(' ');
+		s = s.trim();
+		let search = '';
+		if ( s !== '' && ( sSplit.length < 1 || '' != sSplit[sSplit.length - 1] ) ) {
 			return;
+		}
+
+		if ( s !== '' ) {
+			search = '&search=' + s;
 		}
 
 		this.setState({ posts: [], loading: true });
 
-		axios.get('https://www.thesun.co.uk/wp-json/thesun/v1/posts/lite?per_page=12&search=' + s)
+		axios.get('https://www.thesun.co.uk/wp-json/thesun/v1/posts/lite?per_page=12' + search)
 		  .then(res => {
 			this.setState({ posts: res.data, loading: false });
 		  });

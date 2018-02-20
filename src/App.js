@@ -63,7 +63,7 @@ class NewsSearch extends Component {
 		return (
 			<div>
 				<p className="searchBar_container">
-					<label htmlFor="s">Search Here</label>
+					<label htmlFor="s">Search Here <small>(type your query and add space to search)</small></label>
 					<input type="text" name="s" id="s" className="searchBar" onKeyUp={this.handleKeyUp} />
 				</p>
 				<div className="row">

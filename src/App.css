@@ -21,6 +21,19 @@ body {
   margin-bottom: 30px;
 }
 
+.loader {
+  margin-left: 10px;
+}
+
+.loader img {
+  width: 75px;
+  margin-right: -20px;
+}
+
+.my-4 {
+  min-height: 500px;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

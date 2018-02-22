@@ -23,25 +23,25 @@ class NewsCard extends Component {
 class NewsSearch extends Component {
 
 	constructor( props ) {
-	super( props );
+		super( props );
 
-	this.state = {
-	  posts: [],
-	  loading: true
-	};
+		this.state = {
+			posts: [],
+			loading: true
+		};
 
-	this.handleKeyUp = this.handleKeyUp.bind( this );
-  }
+		this.handleKeyUp = this.handleKeyUp.bind( this );
+	}
 
-  componentDidMount() {
-	axios.get('https://www.thesun.co.uk/wp-json/thesun/v1/posts/lite?per_page=12')
-	  .then(res => {
-		this.setState({
-			posts: res.data,
-			loading: false
+	componentDidMount() {
+		axios.get('https://www.thesun.co.uk/wp-json/thesun/v1/posts/lite?per_page=12')
+		.then(res => {
+			this.setState({
+				posts: res.data,
+				loading: false
+			});
 		});
-	  });
-  }
+	}
 
 	handleKeyUp( e ) {
 		let s = e.target.value;
@@ -59,9 +59,9 @@ class NewsSearch extends Component {
 		this.setState({ posts: [], loading: true });
 
 		axios.get('https://www.thesun.co.uk/wp-json/thesun/v1/posts/lite?per_page=12' + search)
-		  .then(res => {
+		.then(res => {
 			this.setState({ posts: res.data, loading: false });
-		  });
+		});
 
 	}
 
@@ -93,4 +93,43 @@ const LoadingSpinner = () => (
 
 export {
 	LoadingSpinner
-}	
+}
+
+class Weather extends Component {
+
+	constructor( props ) {
+		super( props );
+
+		this.state = {
+			city: '',
+			imageURL: ''
+		};
+	}
+
+	componentDidMount() {
+		let obj = this;
+		navigator.geolocation.getCurrentPosition( function( pos ) {
+			axios.get('http://api.openweathermap.org/data/2.5/weather?lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude + '&appid=bd5e378503939ddaee76f12ad7a97608')
+			.then(res => {
+				obj.setState({
+					city: res.data.name,
+					imageURL: 'http://openweathermap.org/img/w/' + res.data.weather[0].icon + '.png'
+				});
+			});
+		} );
+	}
+
+	render() {
+		return (
+			<div className="weather">
+				<span className="city">{this.state.city}</span>
+				<img src={this.state.imageURL} />
+			</div>
+		);
+	}
+}
+
+export {
+	Weather
+}
+

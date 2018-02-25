@@ -6,16 +6,74 @@ import './App.css';
 class NewsCard extends Component {
 	render() {
 		return (
-				<div className="col-lg-3 col-md-4 col-sm-6 portfolio-item">
-		  <div className="card h-100">
-			<a href="#"><img className="card-img-top" src={this.props.post.images.landscape.sizes ? this.props.post.images.landscape.sizes['thesun-video-rail'].source_url : 'http://placehold.it/700x400'} alt="" /></a>
-			<div className="card-body">
-			  <p className="card-text">
-				<a href={this.props.post.canonical_url} target="_blank">{this.props.post.title}</a>
-			  </p>
+			<div className="col-lg-3 col-md-4 col-sm-6 portfolio-item">
+				<div className="card h-100">
+					<img className="card-img-top" src={this.props.post.images.landscape.sizes ? this.props.post.images.landscape.sizes['thesun-video-rail'].source_url : 'http://placehold.it/700x400'} alt="" />
+					<div className="card-body">
+						<p className="card-text">
+							<a href={this.props.post.canonical_url} target="_blank">{this.props.post.title}</a>
+						</p>
+					</div>
+				</div>
 			</div>
-		  </div>
-		</div>
+		)
+	}
+}
+
+const LoadingSpinner = () => (
+	<div className="loader">
+		<img alt="Loading..." src="https://media.giphy.com/media/Db2IKbddDTWSI/giphy.gif" /> Loading...
+	</div>
+);
+
+class CategoryList extends Component {
+
+	constructor( props ) {
+		super( props );
+
+		this.state = {
+			categoryList: []
+		};
+
+		this.handleClick = this.handleClick.bind( this );
+	}
+
+	renderHTML( data ) {
+		return { __html: data };
+	}
+
+	handleClick( e ) {
+		this.selectedCat = e.target.value;
+		this.props.onCategoryChange( e.target.value );
+	}
+
+	componentDidMount() {
+		axios.get('https://www.thesun.co.uk/wp-json/wp/v2/categories?orderby=count&order=desc')
+		.then(res => {
+			this.setState({ categoryList: res.data });
+		});
+	}
+
+	render() {
+		return (
+			<div className="category_filter">
+				<div className="list">
+					<label>Categories</label>
+					<ul>
+						{this.state.categoryList.map(function(category, index) {
+							return (<li key={category.id}>
+								<input
+									type="radio"
+									name="cat"
+									value={category.id}
+									checked={ parseInt( this.props.selectedCategory, 10 ) === parseInt( category.id, 10 )}
+									onClick={this.handleClick} />
+								<span dangerouslySetInnerHTML={ this.renderHTML( category.name ) } />
+							</li>);
+						}, this)}
+					</ul>
+				</div>
+			</div>
 		)
 	}
 }
@@ -27,10 +85,15 @@ class NewsSearch extends Component {
 
 		this.state = {
 			posts: [],
+			category: null,
+			textSearch: '',
+			categorySearch: '',
 			loading: true
 		};
 
 		this.handleKeyUp = this.handleKeyUp.bind( this );
+		this.handleCategoryChange = this.handleCategoryChange.bind( this );
+		this.search = this.search.bind( this );
 	}
 
 	componentDidMount() {
@@ -44,39 +107,55 @@ class NewsSearch extends Component {
 	}
 
 	handleKeyUp( e ) {
-		let s = e.target.value;
-		let sSplit = s.split(' ');
-		s = s.trim();
-		let search = '';
-		if ( s !== '' && ( sSplit.length < 1 || '' != sSplit[sSplit.length - 1] ) ) {
+		if ( 32 !== e.keyCode ) {
 			return;
 		}
 
-		if ( s !== '' ) {
-			search = '&search=' + s;
-		}
+		let s = e.target.value;
 
+		s = s.trim();
+
+		if ( s !== '' ) {
+			this.setState({ textSearch: '&search=' + s }, this.search);
+		} else {
+			this.setState({ textSearch: '' }, this.search);
+		}
+	}
+
+	handleCategoryChange( category ) {
+		this.setState({ category: category });
+
+		if ( null !== category ) {
+			this.setState({ categorySearch: '&categories=' + category }, this.search);
+		} else {
+			this.setState({ categorySearch: '' }, this.search);
+		}
+	}
+
+	search() {
 		this.setState({ posts: [], loading: true });
 
-		axios.get('https://www.thesun.co.uk/wp-json/thesun/v1/posts/lite?per_page=12' + search)
+		axios.get('https://www.thesun.co.uk/wp-json/thesun/v1/posts/lite?per_page=12' + this.state.textSearch + this.state.categorySearch)
 		.then(res => {
 			this.setState({ posts: res.data, loading: false });
-		});
-
+		});	
 	}
 
 	render() {
 		return (
-			<div>
-				<p className="searchBar_container">
-					<label htmlFor="s">Search Here <small>(type your query and add space to search)</small></label>
-					<input type="text" name="s" id="s" className="searchBar" onKeyUp={this.handleKeyUp} />
-				</p>
-				<div className="row">
-					{ this.state.loading ? <LoadingSpinner /> : '' }
-					{this.state.posts.map(post =>
-						<NewsCard key={post.id} post={post} />
-					)}
+			<div className="row">
+				<div className="col-sm-2"> <CategoryList onCategoryChange={this.handleCategoryChange} selectedCategory={this.state.category} /> </div>
+				<div className="col-sm">
+					<p className="searchBar_container">
+						<label htmlFor="s">Search Here <small>(type your query and add space to search)</small></label>
+						<input type="text" name="s" id="s" className="searchBar" onKeyUp={this.handleKeyUp} />
+					</p>
+					<div className="row">
+						{ this.state.loading ? <LoadingSpinner /> : '' }
+						{this.state.posts.map(post =>
+							<NewsCard key={post.id} post={post} />
+						)}
+					</div>
 				</div>
 			</div>
 		);
@@ -84,16 +163,6 @@ class NewsSearch extends Component {
 }
 
 export default NewsSearch;
-
-const LoadingSpinner = () => (
-  <div className="loader">
-	<img src="https://media.giphy.com/media/Db2IKbddDTWSI/giphy.gif" /> Loading...
-  </div>
-);
-
-export {
-	LoadingSpinner
-}
 
 class Weather extends Component {
 
@@ -123,7 +192,7 @@ class Weather extends Component {
 		return (
 			<div className="weather">
 				<span className="city">{this.state.city}</span>
-				<img src={this.state.imageURL} />
+				<img alt="weather icon" src={this.state.imageURL} />
 			</div>
 		);
 	}

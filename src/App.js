@@ -36,6 +36,7 @@ class CategoryList extends Component {
 		};
 
 		this.handleClick = this.handleClick.bind( this );
+		this.reset = this.reset.bind( this );
 	}
 
 	renderHTML( data ) {
@@ -45,6 +46,11 @@ class CategoryList extends Component {
 	handleClick( e ) {
 		this.selectedCat = e.target.value;
 		this.props.onCategoryChange( e.target.value );
+	}
+
+	reset( e ) {
+		this.selectedCat = null;
+		this.props.onCategoryChange( null );
 	}
 
 	componentDidMount() {
@@ -72,6 +78,7 @@ class CategoryList extends Component {
 							</li>);
 						}, this)}
 					</ul>
+					<button name="reset" className="btn btn-secondary" disabled={this.props.selectedCategory == null} onClick={this.reset}>Reset</button>
 				</div>
 			</div>
 		)

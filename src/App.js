@@ -185,7 +185,7 @@ class Weather extends Component {
 	componentDidMount() {
 		let obj = this;
 		navigator.geolocation.getCurrentPosition( function( pos ) {
-			axios.get('http://api.openweathermap.org/data/2.5/weather?lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude + '&appid=bd5e378503939ddaee76f12ad7a97608')
+			axios.get('https://api.openweathermap.org/data/2.5/weather?lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude + '&appid=bd5e378503939ddaee76f12ad7a97608')
 			.then(res => {
 				obj.setState({
 					city: res.data.name,
